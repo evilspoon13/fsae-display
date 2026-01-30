@@ -1,0 +1,28 @@
+# Build artifacts
+*.o
+*.so
+*.a
+can-reader/can-reader
+graphics-engine/graphics-engine
+data-logger/data-logger
+
+# Node
+node_modules/
+web-server/client/build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# KiCad
+*.bak
+*-backups/
