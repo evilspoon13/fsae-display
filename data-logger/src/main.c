@@ -1,14 +1,21 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <signal.h>
-#include <sys/mman.h>
-#include <fcntl.h>
-#include "../../common/shared_memory.h"
+#include "shared.h"
 
 int main(int argc, char *argv[]) {
     printf("data logger starting\n");
+
+    int shared_mem_fd = shm_open(TELEMETRY_SHM_NAME, O_CREAT | O_RDWR, 0666);
+
+    ftruncate(shared_mem_fd, sizeof(Telemetry));
+
+    // map it, grab the pointer
+    Telemetry* shared_telemetry = mmap(
+        NULL,
+        sizeof(Telemetry),
+        PROT_READ | PROT_WRITE,
+        MAP_SHARED,
+        shared_mem_fd,
+        0
+    );
 
     return 0;
 }

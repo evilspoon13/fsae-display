@@ -2,9 +2,14 @@
 *.o
 *.so
 *.a
+obj/
 can-reader/can-reader
 graphics-engine/graphics-engine
 data-logger/data-logger
+
+# clangd
+compile_commands.json
+.cache/
 
 # Node
 node_modules/
@@ -14,6 +19,7 @@ web-server/client/build/
 .vscode/
 .idea/
 *.swp
+*~
 
 # OS
 .DS_Store
