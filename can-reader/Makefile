@@ -1,21 +1,21 @@
-CC = gcc
-CFLAGS = -Wall -Wextra -O2 -I../common
+CXX = g++
+CXXFLAGS = -std=c++17 -Wall -Wextra -O2 -I../common
 LDFLAGS = -lrt -lpthread
 
 SRC_DIR = src
 OBJ_DIR = obj
 TARGET = can-reader
 
-SRCS = $(wildcard $(SRC_DIR)/*.c)
-OBJS = $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
+SRCS = $(wildcard $(SRC_DIR)/*.cpp)
+OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CC) $(OBJS) -o $@ $(LDFLAGS)
+	$(CXX) $(OBJS) -o $@ $(LDFLAGS)
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
