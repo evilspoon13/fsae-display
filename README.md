@@ -37,7 +37,7 @@ fsae-display/
 ├── graphics-engine/     # Real-time display rendering
 ├── data-logger/         # Telemetry logging and compression
 ├── common/              # Shared C++ headers (queue, config, IPC)
-├── web-app/
+├── web-server/
 │   ├── backend/         # TypeScript + Express — config API
 │   └── frontend/        # TypeScript + React — configuration UI
 ├── config/              # JSON configuration files

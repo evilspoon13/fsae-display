@@ -13,7 +13,7 @@ compile_commands.json
 
 # Node
 node_modules/
-web-server/client/build/
+web-server/frontend/dist/
 
 # IDE
 .vscode/
