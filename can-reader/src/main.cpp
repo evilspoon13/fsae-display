@@ -16,6 +16,31 @@ static void signal_handler(int sig) {
 }
 
 int main() {
-    // TODO: implement
+
+    std::signal(SIGINT, signal_handler);
+    std::signal(SIGTERM, signal_handler);
+    std::signal(SIGHUP, signal_handler);
+
+    CanSocket sock;
+    if( !sock.open("can0")) {
+        std::perror("Failed to open CAN socket");
+        return 1;
+    }
+
+    can_frame frame;
+    while(running) {
+        if (sock.read(frame)) {
+            if (sock.read(frame)) {
+                printf("%0x3#", frame.can_id);
+                for ( int i = 0; i < frame.can_dlc; i++) {
+                    printf("%02x", frame.data[i]);
+                }
+                printf("\n");
+            }
+        }
+        if (reload_flag) {
+            reload_flag = 0;
+        }
+    }
     return 0;
 }
