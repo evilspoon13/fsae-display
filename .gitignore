@@ -14,6 +14,7 @@ compile_commands.json
 # Node
 node_modules/
 web-server/frontend/dist/
+web-server/backend/dist
 
 # IDE
 .vscode/
@@ -32,3 +33,6 @@ logs/
 # KiCad
 *.bak
 *-backups/
+
+# Env
+*.env
