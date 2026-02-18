@@ -7,7 +7,7 @@ graphics-engine/graphics-engine
 data-logger/data-logger
 
 # Node
-node_modules/
+*node_modules/
 web-server/client/build/
 
 # IDE
@@ -26,3 +26,9 @@ logs/
 # KiCad
 *.bak
 *-backups/
+
+# Env
+*.env
+
+#Backend build
+web-server/backend/dist
