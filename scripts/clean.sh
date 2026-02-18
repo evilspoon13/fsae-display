@@ -9,6 +9,6 @@ echo "Cleaning Graphics Engine..."
 cd graphics-engine && make clean && cd ..
 
 echo "Cleaning Data Logger..."
-cd data-logger && make clean && make && cd ..
+cd data-logger && make clean && cd ..
 
 echo "cleaned!"

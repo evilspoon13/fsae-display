@@ -2,18 +2,25 @@
 *.o
 *.so
 *.a
+obj/
 can-reader/can-reader
 graphics-engine/graphics-engine
 data-logger/data-logger
 
+# clangd
+compile_commands.json
+.cache/
+
 # Node
-*node_modules/
-web-server/client/build/
+node_modules/
+web-server/frontend/dist/
+web-server/backend/dist
 
 # IDE
 .vscode/
 .idea/
 *.swp
+*~
 
 # OS
 .DS_Store
@@ -29,6 +36,3 @@ logs/
 
 # Env
 *.env
-
-#Backend build
-web-server/backend/dist
