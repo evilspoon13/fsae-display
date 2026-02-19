@@ -15,6 +15,7 @@ Pit crew members connect to the Raspberry Pi and open a web app to configure the
 - **React + TypeScript** — Vite scaffold
 - **@dnd-kit/core** — drag-and-drop with DragOverlay
 - **Tailwind CSS** — styling
+- **lucide-react** — icon library (consistent, tree-shakeable React icons)
 - **uuid** — widget ID generation
 - **localStorage** — client-side persistence (will be replaced with API calls)
 
@@ -52,23 +53,25 @@ Pit crew members connect to the Raspberry Pi and open a web app to configure the
 ```
 App (DndContext + EditorContext provider)
 ├── Navbar (vertical left sidebar, 288px wide)
-│   ├── Header: "FSAE Display - Configurator"
+│   ├── Header: "T.R.A.C.K. - Configurator"
+│   ├── DBC Upload Section (file input + status display)
 │   ├── Load Screen dropdown (select from localStorage)
 │   ├── ScreenTabs (editable tabs)
 │   │   ├── Screen buttons (double-click to rename inline)
 │   │   └── + New Screen button
 │   ├── DraggableWidget palette (2-column grid)
-│   │   └── 5 widget types (stacked icon+label)
-│   └── Action Buttons (4 buttons, full width)
-│       ├── Save Configuration
-│       ├── Commit Configuration (with modal)
-│       ├── Clear Widgets (with modal)
-│       └── Delete Screen (with modal, disabled if last screen)
+│   │   └── 5 widget types (lucide-react icons + labels)
+│   └── Action Buttons (horizontal icon bar with tooltips)
+│       ├── Save (floppy disk icon, orange dot when dirty)
+│       ├── Commit (checkmark icon, with modal)
+│       ├── Clear (file-edit icon, with modal)
+│       └── Delete Screen (X icon, with modal, disabled if last screen)
 ├── GridCanvas (drop target, renders 10x6 grid, centered)
 │   └── PlacedWidget[] — labeled rectangles, draggable + selectable
 ├── ConfigPanel (right sidebar, 224px wide)
 │   ├── Type display (read-only)
 │   ├── Label input (max 30 chars with counter)
+│   ├── CAN Signal selector (dropdown: DBC signals or custom ID)
 │   ├── Size selector (grid of buttons, disabled if collision)
 │   └── Delete Widget button
 └── DragOverlay (accurate size/color preview during drag)
@@ -79,23 +82,31 @@ App (DndContext + EditorContext provider)
 **Navbar.tsx** (vertical left sidebar):
 - Width: 288px (w-72)
 - Sections from top to bottom:
-  1. **Header**: Title + subtitle
-  2. **Load Screen**: Dropdown with custom arrow SVG, loads from localStorage
-  3. **Screens** (max-height 200px, scrollable, hidden scrollbar):
+  1. **Header**: "T.R.A.C.K." title + "Configurator" subtitle
+  2. **DBC Upload** (file input section):
+     - Before upload: "Upload DBC File" button
+     - After upload: Green-bordered box showing filename, signal count, and clear (✕) button
+     - Parsed DBC stored in state, signals available for widget binding
+     - Currently uses hardcoded sample data (5 signals) — backend integration pending
+  3. **Load Screen**: Dropdown with custom arrow SVG, loads from localStorage
+  4. **Screens** (max-height 200px, scrollable, hidden scrollbar):
      - Screen tabs as buttons (blue when active, gray otherwise)
      - Show asterisk (*) if screen has unsaved widget changes
      - Double-click to edit name inline
      - X button to delete (hidden if only 1 screen)
      - + New Screen button
-  4. **Components** (max-height 400px, scrollable, hidden scrollbar):
+  5. **Components** (max-height 400px, scrollable, hidden scrollbar):
      - 2-column grid layout
-     - Each widget: stacked symbol (top, text-2xl) + name (bottom, text-center)
+     - Each widget: lucide-react icon (32×32px) + name (below, centered)
+     - Icons: Gauge, Hash, BarChart3, LineChart, CircleDot
      - Taller boxes (py-5) for touch interaction
-  5. **Action Buttons** (at bottom, pushed down by spacer):
-     - Save Configuration (blue/orange if dirty)
-     - Commit Configuration (green)
-     - Clear Widgets (orange)
-     - Delete Screen (red, disabled if last screen)
+  6. **Action Buttons** (at bottom, pushed down by spacer):
+     - Horizontal icon bar (4 square buttons, 48×48px each)
+     - Base color: gray-700, semantic colors on hover
+     - Icons from lucide-react: Save, Check, FileEdit, X
+     - CSS tooltips appear above on hover
+     - Save button shows orange dot (top-right) when screen is dirty
+     - Space efficient: ~97px vertical (vs ~176px with old text buttons)
 
 **ScreenTabs.tsx**:
 - Renders list of screen buttons
@@ -108,10 +119,16 @@ App (DndContext + EditorContext provider)
 
 **DraggableWidget.tsx**:
 - Palette items with vertical stacked layout
-- Symbol on top (centered, text-2xl)
+- Icon on top (centered, 32×32px)
 - Label on bottom (centered)
 - Hover effects for touch feedback
-- Icons: ⊙ (gauge), # (number), ▬ (bar), 📈 (graph), ● (indicator)
+- **Icons** (lucide-react components):
+  - Gauge → `<Gauge />` (speedometer)
+  - Number → `<Hash />` (# symbol)
+  - Bar → `<BarChart3 />` (bar chart)
+  - Graph → `<LineChart />` (line graph)
+  - Indicator → `<CircleDot />` (circle with dot)
+- **Design iteration**: Originally used mixed emoji/symbols (📈 for graph, ⊙ for gauge, etc.). Changed to consistent lucide-react icons for professional appearance and visual consistency.
 
 **GridCanvas.tsx**:
 - Centered with flex layout (h-full w-full)
@@ -129,13 +146,21 @@ App (DndContext + EditorContext provider)
 **ConfigPanel.tsx**:
 - Always rendered (shows placeholder when no widget selected)
 - Width: 224px (w-56)
-- Type: read-only, capitalized
-- Label: text input, max 30 chars, shows counter
-- Size: 2-column grid of buttons
+- **Type**: read-only, capitalized
+- **Label**: text input, max 30 chars, shows counter
+- **CAN Signal** (new feature):
+  - Dropdown selector with three modes:
+    1. "No signal assigned" (default)
+    2. DBC signals (if DBC file uploaded) — shown as optgroup with name + unit
+    3. "Custom CAN ID..." — reveals text input for manual entry
+  - Tracks source: `canIdSource` = "dbc" | "custom"
+  - Widget stores: `canId` (string) and `canIdSource`
+  - Backwards compatible (optional fields on PlacedWidget)
+- **Size**: 2-column grid of buttons
   - Active size: blue background
   - Available sizes: gray, hover effect
   - Blocked sizes (collision): gray, disabled, cursor-not-allowed
-- Delete: red button at bottom
+- **Delete**: red button at bottom
 
 **App.tsx**:
 - DndContext setup with PointerSensor (5px activation distance)
@@ -159,6 +184,7 @@ interface EditorState {
   screens: ScreenState[];
   activeScreenId: string;
   selectedWidgetId: string | null;
+  dbcFile: DbcFile | null; // Parsed DBC data
 }
 
 interface ScreenState {
@@ -177,6 +203,20 @@ interface PlacedWidget {
   row: number;
   cols: number;
   rows: number;
+  canId?: string; // CAN signal ID (from DBC or custom)
+  canIdSource?: "dbc" | "custom"; // Tracks input method
+}
+
+interface DbcFile {
+  filename: string;
+  signals: DbcSignal[];
+  uploadedAt: string; // ISO timestamp
+}
+
+interface DbcSignal {
+  id: string; // e.g., "ENGINE_RPM", "WHEEL_SPEED_FL"
+  name: string; // Human-readable name
+  unit?: string; // e.g., "rpm", "km/h"
 }
 ```
 
@@ -186,6 +226,7 @@ interface PlacedWidget {
 - `RESIZE_WIDGET` — Update widget size, mark dirty
 - `REMOVE_WIDGET` — Delete widget, mark dirty, clear selection if removed
 - `UPDATE_WIDGET_LABEL` — Update label, mark dirty
+- `UPDATE_WIDGET_CAN` — Update CAN signal binding (canId + canIdSource), mark dirty
 - `SELECT_WIDGET` — Set selected widget ID
 - `CLEAR_SCREEN` — Remove all widgets from active screen, mark dirty
 - `ADD_SCREEN` — Create new screen, switch to it
@@ -195,6 +236,8 @@ interface PlacedWidget {
 - `UPDATE_ORIGINAL_NAME` — Update originalName after save
 - `MARK_CLEAN` — Clear isDirty flag after save
 - `LOAD_SCREEN` — Load screen from localStorage as new tab
+- `LOAD_DBC` — Load parsed DBC file into state
+- `CLEAR_DBC` — Remove DBC file from state
 
 ### Dirty State Tracking
 - Screen marked dirty on: add, move, resize, remove widget, update label, clear
@@ -335,11 +378,196 @@ When dropping widget from palette:
 
 ---
 
+## Design Iterations & Decisions
+
+This section documents the evolution of the frontend UI and the rationale behind key design choices.
+
+### Summary of Changes
+
+**Current state (as of latest iteration):**
+
+1. ✅ **Action buttons redesigned** — Vertical text buttons → horizontal icon bar with tooltips
+   - Space savings: 79px vertical space (45% reduction)
+   - Icons from lucide-react with CSS tooltips
+   - Muted color palette (gray base, semantic colors on hover)
+   - Orange dot indicator for dirty state
+
+2. ✅ **Widget palette icons standardized** — Mixed emoji/symbols → consistent lucide-react icons
+   - All icons now render as React components (32×32px)
+   - Professional, scalable SVG icons
+   - Gauge, Hash, BarChart3, LineChart, CircleDot
+
+3. ✅ **CAN signal binding implemented** — Widgets can now be bound to data sources
+   - DBC file upload in navbar (currently uses sample data)
+   - CAN signal selector in ConfigPanel (DBC signals or custom ID)
+   - PlacedWidget extended with `canId` and `canIdSource` fields
+   - Backwards compatible with existing layouts
+
+4. ✅ **Header branding updated** — "FSAE Display" → "T.R.A.C.K."
+
+**Key dependencies added:**
+- `lucide-react` (icon library, tree-shakeable, 0 vulnerabilities)
+
+---
+
+### Iteration 1: Action Button Redesign (Icon Bar)
+
+**Problem**: Original navbar had 4 full-width text buttons stacked vertically at the bottom, consuming ~176px of vertical space. This limited space for the widget palette and future additions.
+
+**Solution**: Replaced vertical text buttons with a horizontal row of 4 compact icon buttons (48×48px each) with CSS tooltips.
+
+**Design choices:**
+- **Icon library**: lucide-react (tree-shakeable, consistent design, React-first)
+  - Save → `<Save />` (floppy disk)
+  - Commit → `<Check />` (checkmark)
+  - Clear → `<FileEdit />` (edit/clear icon)
+  - Delete → `<X />` (close/delete)
+- **Tooltips**: Pure CSS implementation using Tailwind's `group` utility
+  - Zero dependencies, performant, consistent with existing patterns
+  - Positioned above buttons, centered with `left-1/2 -translate-x-1/2`
+  - Hidden by default (`opacity-0`), shown on hover (`group-hover:opacity-100`)
+  - `pointer-events-none` to prevent tooltip from interfering with mouse
+- **Color strategy**: Muted, low-stress design
+  - Base state: All buttons `bg-gray-700` (neutral)
+  - Hover states reveal semantic colors:
+    - Save: `hover:bg-blue-700` (when clean) or `hover:bg-orange-700` (when dirty)
+    - Commit: `hover:bg-green-700` (positive action)
+    - Clear: `hover:bg-amber-700` (warning)
+    - Delete: `hover:bg-red-800` (danger, extra muted)
+  - Chose 700/800 shades (not 600) for less eye strain and modern aesthetic
+  - Smooth transitions: `transition-colors duration-200`
+- **Dirty state indicator**: Orange dot (8×8px) in top-right corner of Save button
+  - Replaces asterisk in button text
+  - More compact, visually distinct
+  - Shows at-a-glance whether screen has unsaved changes
+- **Space savings**: Reduced from ~176px to ~97px (79px saved, 45% reduction)
+  - Freed space available for future navbar sections
+
+**Alternative considered**: MUI icons, Heroicons
+- **Rejected**: lucide-react had better variety for our specific needs (dedicated Save icon)
+
+**Alternative considered**: JavaScript tooltip library (e.g., tippy.js)
+- **Rejected**: Pure CSS tooltips are zero-dependency, performant, and sufficient for our use case
+
+**Header title change**: "FSAE Display" → "T.R.A.C.K." to match project branding (Telemetry Rendering And Capture Kit)
+
+---
+
+### Iteration 2: Widget Palette Icon Consistency
+
+**Problem**: Widget palette had inconsistent icon styles — graph used emoji (📈) while others used Unicode symbols (⊙, #, ▬, ●). Visual inconsistency and lack of scalability.
+
+**Solution**: Replaced all icons with lucide-react components for consistency.
+
+**Icon choices:**
+- **Gauge**: `<Gauge />` — literal speedometer/gauge icon
+- **Number**: `<Hash />` — # symbol, clear representation of numeric data
+- **Bar**: `<BarChart3 />` — grouped bars, professional bar chart
+- **Graph**: `<LineChart />` — line chart, replaces 📈 emoji
+- **Indicator**: `<CircleDot />` — circle with center dot, clear indicator representation
+
+**Design rationale:**
+- All icons now render as React components (consistent sizing: 32×32px via `h-8 w-8`)
+- Clean, professional aesthetic matches navbar icon buttons
+- lucide-react already installed (no additional dependency)
+- Scalable and crisp at all sizes (SVG-based)
+- Consistent stroke width and design language across all icons
+
+**Alternative considered**: Keep emoji for graph only
+- **Rejected**: Inconsistency was jarring, icons look more professional
+
+**Alternative considered**: Use different icon types (e.g., `Activity` for graph, `Zap` for indicator)
+- **Rejected**: User preference was for `Hash` and `CircleDot` for clarity
+
+---
+
+### Iteration 3: CAN Signal Binding
+
+**Feature**: Added ability to bind widgets to CAN signals from DBC file or custom IDs.
+
+**Problem**: Widgets had no connection to data sources. Graphics engine needs to know what CAN signal each widget displays.
+
+**Solution**: Three-mode CAN signal selector in ConfigPanel:
+1. **No signal** (default): Widget not bound to any data
+2. **DBC signals**: Dropdown populated from uploaded DBC file (shows name + unit)
+3. **Custom ID**: Manual text input for custom CAN identifiers
+
+**Design choices:**
+- **DBC upload location**: Top of navbar (after header, before load screen)
+  - Logical flow: upload CAN database → load/create screen → add widgets → bind signals
+  - Upload before screen selection ensures DBC is available for all screens
+- **DBC file format**: Currently uses hardcoded sample data (5 signals)
+  - Backend integration pending: `POST /api/dbc/upload`
+  - Sample signals: ENGINE_RPM, WHEEL_SPEED_FL, BATTERY_VOLTAGE, MOTOR_TEMP, THROTTLE_POS
+- **Storage format**: Added `canId` and `canIdSource` to PlacedWidget
+  - `canId`: Signal identifier (e.g., "ENGINE_RPM" or custom value)
+  - `canIdSource`: "dbc" | "custom" (tracks input method for validation)
+  - Optional fields (backwards compatible with existing layouts)
+- **Dropdown design**: Uses custom SVG arrow (matches Load Screen dropdown)
+  - DBC signals shown as optgroup for visual separation
+  - "Custom CAN ID..." option reveals text input below
+  - Shows signal name and unit in dropdown (e.g., "Engine RPM (rpm)")
+- **State management**: DBC stored globally in `EditorState.dbcFile`
+  - Shared across all screens (one DBC file for entire session)
+  - Clear button (✕) removes DBC and resets all widget bindings
+- **Visual feedback**: Green-bordered box after upload (matches success state)
+  - Shows filename and signal count
+  - Clear button in top-right for quick removal
+- **Dirty state**: Updating CAN binding marks screen dirty (triggers save indicator)
+
+**Alternative considered**: Separate DBC file per screen
+- **Rejected**: DBC file represents vehicle's CAN database — single source of truth for all screens
+
+**Alternative considered**: Auto-bind widgets by label matching
+- **Rejected**: Too magical, error-prone. Explicit binding is safer and clearer.
+
+**Alternative considered**: Text input only (no DBC upload)
+- **Rejected**: DBC provides signal names, units, and validation. Manual entry is error-prone.
+
+**Future enhancement**: Backend DBC parsing
+- Currently uses hardcoded sample data for prototyping
+- Backend will parse real .dbc files and return signal list via API
+- Frontend ready for integration (just swap sample data with API response)
+
+---
+
+### Design Philosophy
+
+**General principles applied throughout:**
+1. **Touch-first design**: Large buttons, generous padding, clear hit targets
+2. **Visual hierarchy**: Important actions (save, commit) more prominent via color
+3. **Muted color palette**: Reduce eye strain, only show color on hover/interaction
+4. **Zero dependencies when possible**: CSS tooltips, custom dropdowns (no UI library bloat)
+5. **Backwards compatibility**: Optional fields, graceful degradation for old layouts
+6. **Explicit over implicit**: User confirms destructive actions, manual signal binding
+7. **Consistent design language**: lucide-react icons throughout, Tailwind utilities only
+
+**Color semantics (consistent across UI):**
+- **Blue**: Safe actions (save, primary buttons)
+- **Green**: Confirmation/commit (finalizing changes)
+- **Orange/Amber**: Warning (unsaved changes, clear actions)
+- **Red**: Danger (delete, destructive actions)
+- **Gray**: Neutral/disabled states
+
+**Why Tailwind + lucide-react (not a UI library like MUI or Chakra):**
+- Full control over design without fighting library defaults
+- Lightweight (tree-shaking, only import what's used)
+- No learning curve for library-specific APIs
+- Fast iteration (no need to learn component props)
+- Consistent with project guidelines (no external state libs, minimal dependencies)
+
+---
+
 ## Verification Steps
 
 1. `cd web-server/frontend && npm run dev` — dev server starts at http://localhost:5173
 2. **Initial state**: See vertical sidebar (left), empty 10x6 grid (center), config panel (right)
-3. **Widget placement**: Drag "Gauge" from palette → snaps to grid, shows labeled 2x2 block
+3. **Header & Icons**: Header shows "T.R.A.C.K.", widget palette shows lucide-react icons (Gauge, Hash, BarChart3, LineChart, CircleDot)
+4. **DBC Upload**:
+   - Click "Upload DBC File" → file picker opens
+   - Select any .dbc file → green box appears with filename and "5 signals"
+   - Click ✕ → DBC cleared, upload button returns
+5. **Widget placement**: Drag "Gauge" from palette → snaps to grid, shows labeled 2x2 block
 4. **Collision detection**: Try placing overlapping widget → blocked
 5. **Smart fallback**: Drop widget in tight space → uses smaller size if available
 6. **Widget movement**: Drag placed widget → snaps to new position
@@ -347,6 +575,13 @@ When dropping widget from palette:
 8. **Widget config**:
    - Type shown (read-only)
    - Label input (max 30 chars)
+   - **CAN Signal** (new):
+     - Upload DBC file first
+     - Dropdown shows: "No signal assigned" (default)
+     - Select DBC signal → shows "Engine RPM (rpm)", "Battery Voltage (V)", etc.
+     - Select "Custom CAN ID..." → text input appears below
+     - Enter custom value → saved with canIdSource: "custom"
+     - Changing CAN signal marks screen dirty (orange save button)
    - Size buttons (2x2, 3x3 for gauge) — active size highlighted blue
    - Try changing size → updates if no collision, disabled if collision
 9. **Delete widget**: Click Delete → widget removed
@@ -356,13 +591,27 @@ When dropping widget from palette:
     - Double-click screen tab → enter edit mode
     - Type new name → click out → auto-saves, dropdown updates
 11. **Save/Load**:
-    - Add widgets to screen
-    - Click "Save Configuration" → asterisk disappears, button turns blue
+    - Add widgets to screen → screen tab shows *, save button shows orange dot
+    - Hover over save button → turns orange, tooltip shows "Save Configuration *"
+    - Click save button → dot disappears, tooltip changes to "Save Configuration"
+    - Hover again → turns blue (clean state)
     - Reload page → screen still in dropdown
     - Select from dropdown → loads screen
-12. **Clear Widgets**: Click → modal appears → confirm → all widgets removed
-13. **Delete Screen**: Click → modal appears (disabled if last screen) → confirm → screen deleted
-14. **Commit**: Click → modal appears → confirm → "Committed!" status (placeholder)
+12. **Action button tooltips**:
+    - Hover over each icon button → tooltip appears above
+    - Save: "Save Configuration" (or "Save Configuration *" when dirty)
+    - Commit: "Commit"
+    - Clear: "Clear Widgets"
+    - Delete: "Delete Screen" (no tooltip when disabled)
+13. **Action button colors**:
+    - Base state: all gray
+    - Save hover: blue (clean) or orange (dirty)
+    - Commit hover: green
+    - Clear hover: amber
+    - Delete hover: red (when enabled)
+14. **Clear Widgets**: Click clear icon → modal appears → confirm → all widgets removed
+15. **Delete Screen**: Click delete icon → modal appears (disabled if last screen) → confirm → screen deleted
+16. **Commit**: Click commit icon → modal appears → confirm → "Committed!" status (placeholder)
 
 ---
 
@@ -503,6 +752,61 @@ Notes:
 - Consider locking mechanism if graphics engine is actively rendering
 ```
 
+#### 6. Upload DBC File (NEW)
+```
+POST /api/dbc/upload
+
+Request:
+- Content-Type: multipart/form-data
+- Field: "file" (DBC file upload)
+
+Response:
+{
+  "filename": "vehicle_can.dbc",
+  "signals": [
+    {
+      "id": "ENGINE_RPM",
+      "name": "Engine RPM",
+      "unit": "rpm"
+    },
+    {
+      "id": "BATTERY_VOLTAGE",
+      "name": "Battery Voltage",
+      "unit": "V"
+    },
+    ...
+  ],
+  "uploadedAt": "2025-01-15T10:30:00.000Z"
+}
+
+Status Codes:
+- 200: Success (DBC parsed and signals extracted)
+- 400: Invalid file format or parse error
+- 413: File too large
+- 500: Server error
+
+Purpose:
+- Accept DBC file upload from configurator
+- Parse DBC file using cantools or equivalent library
+- Extract signal definitions (ID, name, unit)
+- Return structured signal list to frontend
+- Store DBC for later reference (optional)
+
+Notes:
+- Frontend expects DbcFile format (see types above)
+- Signal IDs must be unique and valid identifiers
+- Unit is optional (e.g., some signals are dimensionless)
+- Current implementation uses hardcoded sample data — replace with real parser
+- Consider caching parsed DBC to avoid re-parsing on each upload
+- May want to validate against vehicle-specific DBC schema
+
+Implementation:
+- Use cantools Python library or equivalent for parsing
+- Extract BO_ (message) and SG_ (signal) definitions
+- Return only relevant signals (filter out internal/diagnostic messages)
+- Handle malformed DBC files gracefully (return 400 with error message)
+```
+
 ---
 
 ### Backend Implementation Notes
@@ -637,8 +941,8 @@ Example transformation:
 
 ## Future Enhancements (Not in Current Scope)
 
-- **Widget data binding**: Assign CAN signals to widgets
-- **Live preview mode**: Show real telemetry data in configurator
+- ~~**Widget data binding**: Assign CAN signals to widgets~~ ✅ IMPLEMENTED (see Iteration 3)
+- **Live preview mode**: Show real telemetry data in configurator (requires backend integration)
 - **Widget library**: Save/load reusable widget templates
 - **Undo/Redo**: Action history for layout changes
 - **Keyboard shortcuts**: Arrow keys for widget movement, Delete key, etc.

@@ -36,3 +36,5 @@ logs/
 
 # Env
 *.env
+
+.claude/plans/notebooks/
