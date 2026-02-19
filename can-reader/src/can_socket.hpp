@@ -6,6 +6,19 @@
 
 class CanSocket {
 public:
+
+    CanSocket() = default;
+
+    ~CanSocket() {
+        if (fd_ != -1) {
+            close();
+        }
+    }
+
+    CanSocket(const CanSocket&) = delete;
+
+    CanSocket& operator=(const CanSocket&) = delete;
+
     bool open(const std::string& interface);
 
     bool read(can_frame& frame);
