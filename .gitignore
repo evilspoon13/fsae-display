@@ -32,3 +32,5 @@ logs/
 # KiCad
 *.bak
 *-backups/
+
+.claude/plans/notebooks/
