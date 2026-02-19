@@ -7,6 +7,7 @@ export function createInitialState(): EditorState {
     screens: [{ id: screenId, name: "Screen 1", widgets: [] }],
     activeScreenId: screenId,
     selectedWidgetId: null,
+    dbcFile: null,
   };
 }
 
@@ -186,6 +187,30 @@ export function editorReducer(
         screens: [...state.screens, newScreen],
         activeScreenId: id,
         selectedWidgetId: null,
+      };
+    }
+
+    case "LOAD_DBC":
+      return { ...state, dbcFile: action.payload };
+
+    case "CLEAR_DBC":
+      return { ...state, dbcFile: null };
+
+    case "UPDATE_WIDGET_CAN": {
+      const { id, canId, canIdSource } = action.payload;
+      return {
+        ...state,
+        screens: state.screens.map((screen) =>
+          screen.id === state.activeScreenId
+            ? {
+                ...screen,
+                widgets: screen.widgets.map((w) =>
+                  w.id === id ? { ...w, canId, canIdSource } : w
+                ),
+                isDirty: true,
+              }
+            : screen
+        ),
       };
     }
 

@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import DraggableWidget from "./DraggableWidget";
 import ScreenTabs from "./ScreenTabs";
 import { useEditorState, useEditorDispatch } from "../state/EditorContext";
 import { listScreens, loadScreen, saveScreen, deleteScreen } from "../utils/layoutIO";
-import type { WidgetType } from "../types";
+import type { WidgetType, DbcFile } from "../types";
+import { Save, Check, FileEdit, X } from "lucide-react";
 
 const widgetTypes: WidgetType[] = [
   "gauge",
@@ -21,8 +22,10 @@ export default function Navbar() {
   const [showCommitModal, setShowCommitModal] = useState<boolean>(false);
   const [showClearModal, setShowClearModal] = useState<boolean>(false);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const dbcInputRef = useRef<HTMLInputElement>(null);
 
   const activeScreen = state.screens.find((s) => s.id === state.activeScreenId);
+  const { dbcFile } = state;
 
   const refreshScreens = () => {
     setAvailableScreens(listScreens());
@@ -114,6 +117,34 @@ export default function Navbar() {
     setTimeout(() => setSaveStatus(""), 2000);
   };
 
+  const handleDbcUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // TODO: When backend ready, send file to POST /api/dbc/upload
+    // For now, use hardcoded sample data
+    const sampleDbcFile: DbcFile = {
+      filename: file.name,
+      signals: [
+        { id: "ENGINE_RPM", name: "Engine RPM", unit: "rpm" },
+        { id: "WHEEL_SPEED_FL", name: "Wheel Speed (Front Left)", unit: "km/h" },
+        { id: "BATTERY_VOLTAGE", name: "Battery Voltage", unit: "V" },
+        { id: "MOTOR_TEMP", name: "Motor Temperature", unit: "°C" },
+        { id: "THROTTLE_POS", name: "Throttle Position", unit: "%" },
+      ],
+      uploadedAt: new Date().toISOString(),
+    };
+
+    dispatch({ type: "LOAD_DBC", payload: sampleDbcFile });
+
+    // Reset input for re-upload
+    e.target.value = "";
+  };
+
+  const handleClearDbc = () => {
+    dispatch({ type: "CLEAR_DBC" });
+  };
+
   return (
     <>
       {/* Clear Widgets Confirmation Modal */}
@@ -203,8 +234,48 @@ export default function Navbar() {
       <div className="flex h-screen w-72 flex-col border-r border-gray-700 bg-gray-800">
       {/* Header */}
       <div className="border-b border-gray-700 p-4">
-        <h1 className="text-lg font-bold text-white">FSAE Display</h1>
+        <h1 className="text-lg font-bold text-white">T.R.A.C.K.</h1>
         <p className="text-xs text-gray-400">Configurator</p>
+      </div>
+
+      {/* DBC Upload Section */}
+      <div className="border-b border-gray-700 p-4">
+        <label className="text-xs text-gray-400 mb-2 block">
+          CAN Database
+        </label>
+
+        {!dbcFile ? (
+          <>
+            <input
+              type="file"
+              accept=".dbc"
+              ref={dbcInputRef}
+              className="hidden"
+              onChange={handleDbcUpload}
+            />
+            <button
+              onClick={() => dbcInputRef.current?.click()}
+              className="w-full rounded border border-gray-600 bg-gray-900 px-3 py-2 text-sm text-white hover:bg-gray-800 transition"
+            >
+              Upload DBC File
+            </button>
+          </>
+        ) : (
+          <div className="rounded border border-green-600 bg-green-900/20 px-3 py-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm text-white font-medium">{dbcFile.filename}</div>
+                <div className="text-xs text-gray-400">{dbcFile.signals.length} signals</div>
+              </div>
+              <button
+                onClick={handleClearDbc}
+                className="text-red-400 hover:text-red-300 text-sm"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Load Screen Dropdown */}
@@ -258,46 +329,80 @@ export default function Navbar() {
       <div className="flex-1" />
 
       {/* Action Buttons */}
-      <div className="space-y-2 p-4">
-        <button
-          onClick={handleSave}
-          className={`w-full rounded px-4 py-2 text-sm font-medium text-white transition ${
-            activeScreen?.isDirty
-              ? "bg-orange-600 hover:bg-orange-500"
-              : "bg-blue-600 hover:bg-blue-500"
-          }`}
-        >
-          {saveStatus ||
-            (activeScreen?.isDirty
-              ? "Save Configuration *"
-              : "Save Configuration")}
-        </button>
+      <div className="border-t border-gray-700 p-4">
+        <div className="flex items-center justify-between gap-2">
+          {/* Save Configuration */}
+          <button
+            onClick={handleSave}
+            className={`group relative flex h-12 w-12 items-center justify-center rounded transition-colors duration-200 ${
+              activeScreen?.isDirty
+                ? "bg-gray-700 hover:bg-orange-700"
+                : "bg-gray-700 hover:bg-blue-700"
+            }`}
+            aria-label="Save configuration"
+          >
+            <Save className="h-5 w-5 text-white" />
 
-        <button
-          onClick={handleCommit}
-          className="w-full rounded bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-500"
-        >
-          Commit Configuration
-        </button>
+            {/* Tooltip */}
+            <span className="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
+              {saveStatus || (activeScreen?.isDirty ? "Save *" : "Save")}
+            </span>
 
-        <button
-          onClick={handleClearWidgets}
-          className="w-full rounded bg-orange-700 px-4 py-2 text-sm font-medium text-white hover:bg-orange-600"
-        >
-          Clear Widgets
-        </button>
+            {/* Dirty indicator dot */}
+            {activeScreen?.isDirty && (
+              <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-orange-500" />
+            )}
+          </button>
 
-        <button
-          onClick={handleDeleteScreen}
-          disabled={state.screens.length <= 1}
-          className={`w-full rounded px-4 py-2 text-sm font-medium text-white ${
-            state.screens.length <= 1
-              ? "cursor-not-allowed bg-gray-700 text-gray-500"
-              : "bg-red-700 hover:bg-red-600"
-          }`}
-        >
-          Delete Screen
-        </button>
+          {/* Commit Configuration */}
+          <button
+            onClick={handleCommit}
+            className="group relative flex h-12 w-12 items-center justify-center rounded bg-gray-700 transition-colors duration-200 hover:bg-green-700"
+            aria-label="Commit configuration"
+          >
+            <Check className="h-5 w-5 text-white" />
+
+            {/* Tooltip */}
+            <span className="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
+              Commit
+            </span>
+          </button>
+
+          {/* Clear Widgets */}
+          <button
+            onClick={handleClearWidgets}
+            className="group relative flex h-12 w-12 items-center justify-center rounded bg-gray-700 transition-colors duration-200 hover:bg-amber-700"
+            aria-label="Clear all widgets"
+          >
+            <FileEdit className="h-5 w-5 text-white" />
+
+            {/* Tooltip */}
+            <span className="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
+              Clear Widgets
+            </span>
+          </button>
+
+          {/* Delete Screen */}
+          <button
+            onClick={handleDeleteScreen}
+            disabled={state.screens.length <= 1}
+            className={`group relative flex h-12 w-12 items-center justify-center rounded transition-colors duration-200 ${
+              state.screens.length <= 1
+                ? "cursor-not-allowed bg-gray-700 opacity-40"
+                : "bg-gray-700 hover:bg-red-800"
+            }`}
+            aria-label="Delete current screen"
+          >
+            <X className="h-5 w-5 text-white" />
+
+            {/* Tooltip */}
+            {state.screens.length > 1 && (
+              <span className="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
+                Delete Screen
+              </span>
+            )}
+          </button>
+        </div>
       </div>
     </div>
     </>

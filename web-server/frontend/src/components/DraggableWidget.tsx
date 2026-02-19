@@ -1,4 +1,5 @@
 import { useDraggable } from "@dnd-kit/core";
+import { Gauge, Hash, BarChart3, LineChart, CircleDot } from "lucide-react";
 import type { WidgetType } from "../types";
 
 const typeLabels: Record<WidgetType, string> = {
@@ -9,12 +10,12 @@ const typeLabels: Record<WidgetType, string> = {
   indicator: "Indicator",
 };
 
-const typeIcons: Record<WidgetType, string> = {
-  gauge: "⊙",
-  number: "#",
-  bar: "▬",
-  graph: "📈",
-  indicator: "●",
+const typeIcons: Record<WidgetType, React.ComponentType<{ className?: string }>> = {
+  gauge: Gauge,
+  number: Hash,
+  bar: BarChart3,
+  graph: LineChart,
+  indicator: CircleDot,
 };
 
 interface Props {
@@ -27,6 +28,8 @@ export default function DraggableWidget({ widgetType }: Props) {
     data: { fromPalette: true, widgetType },
   });
 
+  const Icon = typeIcons[widgetType];
+
   return (
     <div
       ref={setNodeRef}
@@ -36,7 +39,7 @@ export default function DraggableWidget({ widgetType }: Props) {
         isDragging ? "opacity-50 scale-95" : ""
       }`}
     >
-      <span className="text-2xl">{typeIcons[widgetType]}</span>
+      <Icon className="h-8 w-8" />
       <span className="mt-1 text-center">{typeLabels[widgetType]}</span>
     </div>
   );
