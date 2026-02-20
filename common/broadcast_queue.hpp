@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <cstring>
 
-#include "telemetry_message.hpp"
 
 template <std::size_t Capacity = 4096>
 struct BroadcastQueue {

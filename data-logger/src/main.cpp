@@ -4,7 +4,6 @@
 
 #include "broadcast_queue.hpp"
 #include "shared_memory.hpp"
-#include "telemetry_message.hpp"
 #include "log_writer.hpp"
 #include "compressor.hpp"
 

@@ -3,20 +3,35 @@
 
 #include <cstdint>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
+
+// --------------- can frame config types ----------------
+
 struct ChannelConfig {
-    uint32_t can_id;
-    std::string name;
-    // ... ... todo add all fields for config from web app
+    uint8_t start_byte;
+    uint8_t length;
+    std::string type;
+    double scale;
+    double offset;
 };
 
+
+// --------------- display config types ----------------
+
+
+// todo: do
 struct WidgetConfig {
     std::string id;
     int x;
     int y;
     // todo
 };
+
+
+// maps can ID to a list of channels that exist in that frame
+using FrameMap = std::unordered_map<uint32_t, std::vector<ChannelConfig>>;
 
 struct ScreenConfig {
     // list of widgets and their positions?

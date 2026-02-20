@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "telemetry_message.hpp"
+
 
 
 #endif
