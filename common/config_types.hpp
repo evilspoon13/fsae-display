@@ -5,14 +5,25 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-
+#include <cstring>
 
 // --------------- can frame config types ----------------
+
+enum class SignalType {
+    UINT8,
+    INT8,
+    UINT16,
+    INT16,
+    UINT32,
+    INT32,
+    FLOAT,
+    DOUBLE
+};
 
 struct ChannelConfig {
     uint8_t start_byte;
     uint8_t length;
-    std::string type;
+    SignalType type;
     double scale;
     double offset;
 };

@@ -20,7 +20,7 @@ int main() {
 
     // std::signal(SIGINT, signal_handler);
     // std::signal(SIGTERM, signal_handler);
-    // std::signal(SIGHUP, signal_handler);
+    std::signal(SIGHUP, signal_handler);
 
     FrameMap frame_map = load_can_config(DEFAULT_CONFIG_PATH);
 
@@ -33,14 +33,26 @@ int main() {
     can_frame frame;
     while(running) {
         if (sock.read(frame)) {
-            printf("%0x3#", frame.can_id);
-            for ( int i = 0; i < frame.can_dlc; i++) {
-                printf("%02x", frame.data[i]);
+
+            printf("Received CAN frame with ID: %03x\n", frame.can_id);
+            auto it = frame_map.find(frame.can_id);
+            if (it == frame_map.end()) {
+                continue;
             }
-            printf("\n");
+
+            const auto& channels = it->second;
+
+            for (const auto& cfg : channels) {
+                double value = parse_value(frame, cfg);
+                // TODO write value to shared memory or broadcast queue
+
+                printf("Parsed value for CAN ID %03x at byte %d: %f\n", frame.can_id, cfg.start_byte, value);
+            }
         }
         if (reload_flag) {
             reload_flag = 0;
+            frame_map = load_can_config(DEFAULT_CONFIG_PATH);
+            printf("Reloaded config\n");
         }
     }
     return 0;
