@@ -36,20 +36,44 @@ struct ChannelConfig {
 // maps can ID to a list of channels that exist in that frame
 using FrameMap = std::unordered_map<uint32_t, std::vector<ChannelConfig>>;
 
-// Display config types
-struct WidgetConfig {
-    std::string id;
+// Display config types — mirrors graphics.types.ts
+
+enum class WidgetType { Gauge, Bar, Number, Indicator };
+
+enum class DataUnit { Temperature, Pressure, RPM };
+
+struct PositionConfig {
     int x;
     int y;
-    // todo
+    int width;
+    int height;
+};
+
+struct DataConfig {
+    uint32_t can_id;
+    std::string can_id_label;
+    std::string signal;
+    DataUnit unit;
+    double min;
+    double max;
+    double caution_threshold;
+    double critical_threshold;
+};
+
+struct WidgetConfig {
+    WidgetType type;
+    bool alarm;
+    PositionConfig position;
+    DataConfig data;
 };
 
 struct ScreenConfig {
-    // list of widgets and their positions?
+    std::string name;
+    std::vector<WidgetConfig> widgets;
 };
 
 struct DisplayConfig {
-    // list of screens?
+    std::vector<ScreenConfig> screens;
 };
 
 #endif
