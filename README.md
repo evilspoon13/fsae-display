@@ -42,8 +42,7 @@ fsae-display/
 │   └── frontend/        # TypeScript + React — configuration UI
 ├── config/              # JSON configuration files
 ├── scripts/             # Build and tooling scripts
-├── systemd/             # Service files for deployment
-└── .claude/plans/       # Implementation plans
+└── systemd/             # Service files for deployment
 ```
 
 ## Modules

@@ -37,4 +37,6 @@ logs/
 # Env
 *.env
 
-.claude/plans/notebooks/
+# AI
+.claude/*
+CLAUDE.md
