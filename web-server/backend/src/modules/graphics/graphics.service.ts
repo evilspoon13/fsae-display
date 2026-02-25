@@ -1,8 +1,10 @@
 import type { ApiMessage } from "../../common/types/api.types";
-import type { ScreenInfo, GraphicsConfig } from "./config.types";
+import type { ScreenInfo, GraphicsConfig } from "./graphics.types";
 import { sendReloadSignal } from "../../common/system/signal.service";
+import { atomicWriteJson } from "../../common/system/json-helpers";
 import fs from "node:fs";
 import path from "node:path";
+
 
 const DEFAULT_CONFIG_PATH = path.resolve(__dirname, "../../../../../config/graphics.json");
 
@@ -31,7 +33,6 @@ export async function getScreenNames(): Promise<string[] | null> {
   if (config === null || config.screens === null) {
     return null;
   }
-
 
   let screenNames: string[] = config.screens!.map((screen) => screen.name);
 
@@ -63,23 +64,6 @@ export async function deleteScreenById(screen: string): Promise<ApiMessage> {
   await atomicWriteJson(DEFAULT_CONFIG_PATH, config);
   return {msg: "Screen Deleted"};
 }
-
-async function atomicWriteJson(filePath: string, value: unknown): Promise<void> {
-  const dir = path.dirname(filePath);
-  const base = path.basename(filePath);
-  const tmpPath = path.join(dir, `.${base}.${process.pid}.${Date.now()}.tmp`);
-
-  const payload = JSON.stringify(value, null, 2);
-
-  try {
-    await fs.promises.writeFile(tmpPath, payload, { encoding: "utf-8" });
-    await fs.promises.rename(tmpPath, filePath);
-  } catch (err) {
-    await fs.promises.unlink(tmpPath).catch(() => {});
-    throw err;
-  }
-}
-
 
 // Writes Graphics Config to shared memory
 export async function saveScreen( screenId:string, newScreen: ScreenInfo): Promise<ApiMessage> {
