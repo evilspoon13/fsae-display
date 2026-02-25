@@ -4,10 +4,11 @@
 #include <cstddef>
 
 #include "broadcast_queue.hpp"
+#include "config_types.hpp"
 
 inline constexpr const char* SHM_NAME = "/fsae_telemetry";
 
-using TelemetryQueue = BroadcastQueue<4096>;
+using TelemetryQueue = BroadcastQueue<TelemetryMessage, 4096>;
 
 // open queue, return pointer to shared mem
 TelemetryQueue* open_shared_queue(bool is_writer);

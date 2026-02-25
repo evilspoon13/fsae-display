@@ -1,16 +1,20 @@
 #!/bin/bash
 set -e
+cd "$(dirname "$0")/.."
 
 echo "Building CAN Reader..."
-cd can-reader && make clean && make && cd ..
+make -C can-reader clean && make -C can-reader
 
-echo "Building Graphics Engine..."
-cd graphics-engine && make clean && make && cd ..
+# echo "Building Graphics Engine..."
+# make -C graphics-engine clean && make -C graphics-engine
 
-echo "Building Data Logger..."
-cd data-logger && make clean && make && cd ..
+# echo "Building Data Logger..."
+# make -C data-logger clean && make -C data-logger
 
 # echo "Installing Node dependencies..."
-# cd web-server && npm install && cd ..
+# cd web-server && npm install
+
+echo "Building Tests..."
+make -C tests clean && make -C tests
 
 echo "built!"

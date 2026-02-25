@@ -1,7 +1,6 @@
 #include <csignal>
 #include <cstdio>
 
-#include "broadcast_queue.hpp"
 #include "config_parser.hpp"
 #include "config_types.hpp"
 #include "shared_memory.hpp"
@@ -18,15 +17,29 @@ static void signal_handler(int sig) {
 
 int main() {
 
-    // std::signal(SIGINT, signal_handler);
-    // std::signal(SIGTERM, signal_handler);
-    std::signal(SIGHUP, signal_handler);
+    struct sigaction sa{};
+    sa.sa_handler = signal_handler;
+    sigaction(SIGINT, &sa, nullptr);
+    sigaction(SIGTERM, &sa, nullptr);
+    sa.sa_handler = signal_handler;
+    sigaction(SIGHUP, &sa, nullptr);
 
     FrameMap frame_map = load_can_config(DEFAULT_CONFIG_PATH);
+    if(frame_map.empty()) {
+        std::fprintf(stderr, "Failed to load CAN config\n");
+        return 1;
+    }
+
+    TelemetryQueue* queue = open_shared_queue(true);
+    if (!queue) {
+        std::perror("Failed to open shared memory queue");
+        return 1;
+    }
 
     CanSocket sock;
     if( !sock.open("vcan0")) {
         std::perror("Failed to open CAN socket");
+        close_shared_queue(queue, true);
         return 1;
     }
 
@@ -43,10 +56,12 @@ int main() {
             const auto& channels = it->second;
 
             for (const auto& cfg : channels) {
-                double value = parse_value(frame, cfg);
-                // TODO write value to shared memory or broadcast queue
-
-                printf("Parsed value for CAN ID %03x at byte %d: %f\n", frame.can_id, cfg.start_byte, value);
+                // build telemetry message
+                TelemetryMessage msg;
+                msg.can_id = frame.can_id;
+                msg.value = parse_value(frame, cfg);
+                queue->push(msg);
+                printf("Parsed value for CAN ID %03x at byte %d: %f\n", frame.can_id, cfg.start_byte, msg.value);
             }
         }
         if (reload_flag) {
@@ -55,5 +70,8 @@ int main() {
             printf("Reloaded config\n");
         }
     }
+
+    close_shared_queue(queue, true);
+
     return 0;
 }

@@ -2,23 +2,21 @@ CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra -O2 -I../common
 LDFLAGS = -lrt -lpthread
 
-SRC_DIR = src
 OBJ_DIR = obj
-TARGET = can-reader
+TARGET = queue_reader
 
-SRCS = $(wildcard $(SRC_DIR)/*.cpp)
-COMMON_SRCS = ../common/shared_memory.cpp ../common/config_parser.cpp
-OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o) $(COMMON_SRCS:../common/%.cpp=$(OBJ_DIR)/%.o)
+SRCS = queue_reader.cpp ../common/shared_memory.cpp
+OBJS = $(OBJ_DIR)/queue_reader.o $(OBJ_DIR)/shared_memory.o
 
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
 	$(CXX) $(OBJS) -o $@ $(LDFLAGS)
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
+$(OBJ_DIR)/queue_reader.o: queue_reader.cpp | $(OBJ_DIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(OBJ_DIR)/%.o: ../common/%.cpp | $(OBJ_DIR)
+$(OBJ_DIR)/shared_memory.o: ../common/shared_memory.cpp | $(OBJ_DIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(OBJ_DIR):

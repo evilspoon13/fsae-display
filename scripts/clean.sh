@@ -11,4 +11,7 @@ cd graphics-engine && make clean && cd ..
 echo "Cleaning Data Logger..."
 cd data-logger && make clean && cd ..
 
+echo "Cleaning Tests"
+cd tests && make clean && cd ..
+
 echo "cleaned!"

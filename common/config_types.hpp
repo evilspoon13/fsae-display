@@ -7,8 +7,12 @@
 #include <vector>
 #include <cstring>
 
-// --------------- can frame config types ----------------
+struct TelemetryMessage {
+    uint32_t can_id;
+    double value;
+};
 
+// CAN frame config types
 enum class SignalType {
     UINT8,
     INT8,
@@ -29,20 +33,16 @@ struct ChannelConfig {
 };
 
 
-// --------------- display config types ----------------
+// maps can ID to a list of channels that exist in that frame
+using FrameMap = std::unordered_map<uint32_t, std::vector<ChannelConfig>>;
 
-
-// todo: do
+// Display config types
 struct WidgetConfig {
     std::string id;
     int x;
     int y;
     // todo
 };
-
-
-// maps can ID to a list of channels that exist in that frame
-using FrameMap = std::unordered_map<uint32_t, std::vector<ChannelConfig>>;
 
 struct ScreenConfig {
     // list of widgets and their positions?
