@@ -1,14 +1,14 @@
 import type { Request, Response } from "express";
-import type { GraphicsConfig, ScreenInfo } from "./config.types";
-import * as configService from "./config.service";
+import type { GraphicsConfig, ScreenInfo } from "./graphics.types";
+import * as graphicsService from "./graphics.service";
 
 export async function getConfig(_req: Request, res: Response) {
-  const config: GraphicsConfig | null = await configService.readConfig();
+  const config: GraphicsConfig | null = await graphicsService.readConfig();
   res.status(200).json(config);
 }
 
 export async function getScreenNames(req: Request, res: Response) {
-  const screens: string[] | null = await configService.getScreenNames();
+  const screens: string[] | null = await graphicsService.getScreenNames();
   if (screens === null) {
     res.status(404).json({msg: "No screens found"});
   }
@@ -24,7 +24,7 @@ export async function getScreenById(req: Request<{ screenId: string }>, res: Res
     return;
   }
 
-  const screen: ScreenInfo | null = await configService.getScreenById(screenName);
+  const screen: ScreenInfo | null = await graphicsService.getScreenById(screenName);
   if (screen === null) {
     res.status(404).json({ msg: "Screen not found" });
     return;
@@ -41,7 +41,7 @@ export async function deleteScreenById(req: Request<{ screenId: string}>, res: R
     return;
   }
 
-  const response = await configService.deleteScreenById(screenName);
+  const response = await graphicsService.deleteScreenById(screenName);
   if (response.msg === "fail") {
     res.status(404).json({ success: false });
     return;
@@ -51,11 +51,10 @@ export async function deleteScreenById(req: Request<{ screenId: string}>, res: R
   return;
 }
 
-export async function updateConfig(req: Request<{ screenId: string}>, res: Response) {
-  // const config: GraphicsConfig = req.body.config;
+export async function updateScreen(req: Request<{ screenId: string}>, res: Response) {
   const screenId = req.params.screenId;
   const screen = req.body as ScreenInfo;
-  await configService.saveScreen(screenId, screen);
+  await graphicsService.saveScreen(screenId, screen);
   res.status(200).json({ success: true });
   return;
 }
