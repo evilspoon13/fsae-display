@@ -1,0 +1,58 @@
+{
+  "screens": [
+    {
+      "name": "screen",
+      "widgets": [
+        {
+          "type": "gauge",
+          "x": 0,
+          "y": 0,
+          "radius": 10,
+          "data_field": "rpm",
+          "min": 0,
+          "max": 100,
+          "redline": 8,
+          "color": "#fff",
+          "alert_threshold": 6,
+          "warning_color": "#FF0000"
+        }
+      ]
+    },
+    {
+      "name": "screen 2",
+      "widgets": [
+        {
+          "type": "gauge",
+          "x": 0,
+          "y": 0,
+          "radius": 10,
+          "data_field": "rpm",
+          "min": 0,
+          "max": 100,
+          "redline": 8,
+          "color": "#fff",
+          "alert_threshold": 6,
+          "warning_color": "#FF0000"
+        }
+      ]
+    },
+    {
+      "name": "screen 3",
+      "widgets": [
+        {
+          "type": "gauge",
+          "x": 0,
+          "y": 0,
+          "radius": 10,
+          "data_field": "rpm",
+          "min": 0,
+          "max": 100,
+          "redline": 8,
+          "color": "#fff",
+          "alert_threshold": 6,
+          "warning_color": "#FF0000"
+        }
+      ]
+    }
+  ]
+}

@@ -5,8 +5,12 @@ const router = Router();
 
 router.get("/", configController.getConfig);
 
-router.post("/", configController.updateConfig);
+router.get("/screens", configController.getScreenNames);
 
-router.post("/reset", configController.resetConfig);
+router.get("/screens/:screenId", configController.getScreenById);
+
+router.delete("/screens/:screenId", configController.deleteScreenById);
+
+router.post("/screens/:screenId", configController.updateConfig);
 
 export default router;
