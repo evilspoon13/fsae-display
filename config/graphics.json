@@ -1,20 +1,47 @@
 {
   "screens": [
     {
-      "name": "screen",
+      "name": "screen 1",
       "widgets": [
         {
           "type": "gauge",
-          "x": 0,
-          "y": 0,
-          "radius": 10,
-          "data_field": "rpm",
-          "min": 0,
-          "max": 100,
-          "redline": 8,
-          "color": "#fff",
-          "alert_threshold": 6,
-          "warning_color": "#FF0000"
+          "alarm": false,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 2,
+            "height": 2
+          },
+          "data": {
+            "can_id": "0x100",
+            "can_id_label": "BMS Info",
+            "signal": "voltage",
+            "unit": "rpm",
+            "min": 0,
+            "max": 10,
+            "caution_threshold": 6,
+            "critical_threshhold": 8
+          }
+        },
+        {
+          "type": "bar",
+          "alarm": false,
+          "position": {
+            "x": 2,
+            "y": 2,
+            "width": 1,
+            "height": 1
+          },
+          "data": {
+            "can_id": "0x100",
+            "can_id_label": "BMS Info",
+            "signal": "temp",
+            "unit": "temperature",
+            "min": 0,
+            "max": 10,
+            "caution_threshold": 6,
+            "critical_threshhold": 8
+          }
         }
       ]
     },
@@ -23,34 +50,63 @@
       "widgets": [
         {
           "type": "gauge",
-          "x": 0,
-          "y": 0,
-          "radius": 10,
-          "data_field": "rpm",
-          "min": 0,
-          "max": 100,
-          "redline": 8,
-          "color": "#fff",
-          "alert_threshold": 6,
-          "warning_color": "#FF0000"
-        }
-      ]
-    },
-    {
-      "name": "screen 3",
-      "widgets": [
+          "alarm": false,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 2,
+            "height": 2
+          },
+          "data": {
+            "can_id": "0x100",
+            "can_id_label": "BMS Info",
+            "signal": "voltage",
+            "unit": "rpm",
+            "min": 0,
+            "max": 10,
+            "caution_threshold": 6,
+            "critical_threshhold": 8
+          }
+        },
+        {
+          "type": "bar",
+          "alarm": false,
+          "position": {
+            "x": 2,
+            "y": 2,
+            "width": 1,
+            "height": 1
+          },
+          "data": {
+            "can_id": "0x100",
+            "can_id_label": "BMS Info",
+            "signal": "temp",
+            "unit": "temperature",
+            "min": 0,
+            "max": 10,
+            "caution_threshold": 6,
+            "critical_threshhold": 8
+          }
+        },
         {
           "type": "gauge",
-          "x": 0,
-          "y": 0,
-          "radius": 10,
-          "data_field": "rpm",
-          "min": 0,
-          "max": 100,
-          "redline": 8,
-          "color": "#fff",
-          "alert_threshold": 6,
-          "warning_color": "#FF0000"
+          "alarm": false,
+          "position": {
+            "x": 2,
+            "y": 0,
+            "width": 2,
+            "height": 2
+          },
+          "data": {
+            "can_id": "0x100",
+            "can_id_label": "BMS Info",
+            "signal": "voltage",
+            "unit": "rpm",
+            "min": 0,
+            "max": 10,
+            "caution_threshold": 6,
+            "critical_threshhold": 8
+          }
         }
       ]
     }
