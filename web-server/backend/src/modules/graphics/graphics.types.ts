@@ -30,6 +30,7 @@ export interface positionInfo {
 
 export interface dataInfo {
     can_id: number,
+    can_id_label: string,
     signal: string,
     unit: DataFieldType,
     min: number,
