@@ -1,28 +1,5 @@
-export enum WidgetType {
-    Gauge = "gauge",
-    Bar = "bar",
-    Number = "number",
-    Indicator = "indicator"
-}
-
-export enum DataFieldType {
-    Temperature = "temperature",
-    Pressure = "pressure",
-    RPM = "rpm"
-}
-
-export interface WidgetInfo {
-    type: WidgetType,
-    x: number,
-    y: number,
-    radius: number,
-    data_field: DataFieldType,
-    min: number,
-    max: number,
-    redline: number,
-    color: string,
-    alert_threshold: number,
-    warning_color: string
+export interface GraphicsConfig {
+    screens: ScreenInfo[]
 }
 
 export interface ScreenInfo {
@@ -30,7 +7,40 @@ export interface ScreenInfo {
     widgets: WidgetInfo[]
 }
 
-export interface GraphicsConfig {
-    screens: ScreenInfo[]
+export interface WidgetInfo {
+    type: WidgetType,
+    alarm: boolean,
+    position: positionInfo,
+    data: dataInfo
+}
+
+export enum WidgetType {
+    Gauge = "gauge",
+    Bar = "bar",
+    Number = "number",
+    Indicator = "indicator"
+}
+
+export interface positionInfo {
+    x: number,
+    y: number,
+    width: number,
+    height: number
+}
+
+export interface dataInfo {
+    can_id: number,
+    signal: string,
+    unit: DataFieldType,
+    min: number,
+    max: number,
+    caution_threshold: number,
+    critical_threshold: number
+}
+
+export enum DataFieldType {
+    Temperature = "temperature",
+    Pressure = "pressure",
+    RPM = "rpm"
 }
 
