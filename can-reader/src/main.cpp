@@ -1,8 +1,8 @@
 #include <csignal>
 #include <cstdio>
 
-#include "config_parser.hpp"
 #include "config_types.hpp"
+#include "dbc_parser.hpp"
 #include "shared_memory.hpp"
 #include "can_socket.hpp"
 #include "frame_parser.hpp"
@@ -24,7 +24,7 @@ int main() {
     sa.sa_handler = signal_handler;
     sigaction(SIGHUP, &sa, nullptr);
 
-    FrameMap frame_map = load_can_config(DEFAULT_CONFIG_PATH);
+    FrameMap frame_map = load_dbc_config(DEFAULT_DBC_PATH);
     if(frame_map.empty()) {
         std::fprintf(stderr, "Failed to load CAN config\n");
         return 1;
@@ -59,14 +59,16 @@ int main() {
                 // build telemetry message
                 TelemetryMessage msg;
                 msg.can_id = frame.can_id;
+                std::strncpy(msg.signal_name, cfg.name.c_str(), sizeof(msg.signal_name) - 1);
+                msg.signal_name[sizeof(msg.signal_name) - 1] = '\0';
                 msg.value = parse_value(frame, cfg);
                 queue->push(msg);
-                printf("Parsed value for CAN ID %03x at byte %d: %f\n", frame.can_id, cfg.start_byte, msg.value);
+                printf("Parsed signal '%s' for CAN ID %03x: %f\n", msg.signal_name, frame.can_id, msg.value);
             }
         }
         if (reload_flag) {
             reload_flag = 0;
-            frame_map = load_can_config(DEFAULT_CONFIG_PATH);
+            frame_map = load_dbc_config(DEFAULT_DBC_PATH);
             printf("Reloaded config\n");
         }
     }

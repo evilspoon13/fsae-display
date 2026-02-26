@@ -9,6 +9,7 @@
 
 struct TelemetryMessage {
     uint32_t can_id;
+    char signal_name[64];
     double value;
 };
 
@@ -25,6 +26,7 @@ enum class SignalType {
 };
 
 struct ChannelConfig {
+    std::string name;
     uint8_t start_byte;
     uint8_t length;
     SignalType type;
