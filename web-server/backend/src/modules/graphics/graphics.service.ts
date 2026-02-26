@@ -67,25 +67,14 @@ export async function deleteScreenById(screen: string): Promise<ApiMessage> {
 
 // Writes Graphics Config to shared memory
 export async function saveScreen( screenId:string, newScreen: ScreenInfo): Promise<ApiMessage> {
-  let config: GraphicsConfig | null = await readConfig();
+  let config: GraphicsConfig = (await readConfig()) ?? {screens : []};
 
-  if (config === null) {
-    config = {screens: [newScreen]}
-    await atomicWriteJson(DEFAULT_CONFIG_PATH, config);
-    // sendReloadSignal("fsae-graphics.service");
-    return {msg: "Config Created"}
-  }
+  const idx = config.screens.findIndex((screen) => screen.name == screenId);
   
-  let screenUpdated = false; 
-  config.screens.forEach( screen => {
-    if (screen.name === screenId) {
-      screen.name = newScreen.name;
-      screen.widgets = newScreen.widgets;
-      screenUpdated = true;
-    }
-  });
-
-  if (screenUpdated === false) {
+  if (idx >= 0) {
+    config.screens[idx] = newScreen;
+  }
+  else {
     config.screens.push(newScreen);
   }
 
