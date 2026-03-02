@@ -13,7 +13,7 @@
                         "height": 3
                     },
                     "data": {
-                        "can_id": 127,
+                        "can_id": "0x7F",
                         "can_id_label": "Speed",
                         "signal": "vehicle_speed",
                         "unit": "rpm",
@@ -33,7 +33,7 @@
                         "height": 3
                     },
                     "data": {
-                        "can_id": 128,
+                        "can_id": "0x80",
                         "can_id_label": "Coolant",
                         "signal": "coolant_temp",
                         "unit": "temperature",
@@ -53,7 +53,7 @@
                         "height" : 1
                     },
                     "data" : {
-                        "can_id" : 102,
+                        "can_id" : "0x66",
                         "can_id_label" : "GEAR",
                         "signal" : "gear",
                         "unit" : "rpm",

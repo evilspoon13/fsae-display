@@ -5,6 +5,10 @@
 #include <string>
 #include <vector>
 
+static uint32_t parse_can_id(const std::string& s) {
+  return static_cast<uint32_t>(std::stoul(s, nullptr, 16));
+}
+
 static WidgetType parse_widget_type(std::string_view s) {
   if (s == "gauge")
     return WidgetType::Gauge;
@@ -53,7 +57,7 @@ DisplayConfig load_display_config(const std::string &path) {
       cfg.position = {pos["x"], pos["y"], pos["width"], pos["height"]};
 
       const auto &d = w["data"];
-      cfg.data.can_id = d["can_id"];
+      cfg.data.can_id = parse_can_id(d["can_id"].get<std::string>());
       cfg.data.can_id_label = d["can_id_label"];
       cfg.data.signal = d["signal"];
       cfg.data.unit = parse_data_unit(d["unit"].get<std::string>());

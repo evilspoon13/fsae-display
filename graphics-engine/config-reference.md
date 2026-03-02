@@ -78,7 +78,7 @@ DATA
 Links the widget to a CAN signal and sets its value range and thresholds.
 
 {
-    "can_id":             <int>,     -- CAN frame ID (decimal integer, e.g. 127)
+    "can_id":             <string>,  -- CAN frame ID as a hex string, e.g. "0x7F" or "7F"
     "can_id_label":       <string>,  -- display label for number/indicator widgets
     "signal":             <string>,  -- signal name within the CAN frame
     "unit":               <string>,  -- see Units below
@@ -146,7 +146,7 @@ FULL EXAMPLE
                     "alarm": false,
                     "position": { "x": 0, "y": 0, "width": 3, "height": 3 },
                     "data": {
-                        "can_id": 100,
+                        "can_id": "0x64",
                         "can_id_label": "RPM",
                         "signal": "engine_rpm",
                         "unit": "rpm",
@@ -161,7 +161,7 @@ FULL EXAMPLE
                     "alarm": false,
                     "position": { "x": 3, "y": 0, "width": 2, "height": 3 },
                     "data": {
-                        "can_id": 101,
+                        "can_id": "0x65",
                         "can_id_label": "Coolant",
                         "signal": "coolant_temp",
                         "unit": "temperature",
@@ -176,7 +176,7 @@ FULL EXAMPLE
                     "alarm": false,
                     "position": { "x": 5, "y": 0, "width": 2, "height": 2 },
                     "data": {
-                        "can_id": 102,
+                        "can_id": "0x66",
                         "can_id_label": "GEAR",
                         "signal": "gear_pos",
                         "unit": "rpm",
@@ -191,7 +191,7 @@ FULL EXAMPLE
                     "alarm": true,
                     "position": { "x": 7, "y": 0, "width": 1, "height": 1 },
                     "data": {
-                        "can_id": 103,
+                        "can_id": "0x67",
                         "can_id_label": "OIL",
                         "signal": "oil_pressure_warn",
                         "unit": "pressure",
