@@ -36,10 +36,10 @@ void NumberWidget::Draw(const Font& font) const
     DrawRectangle(Px(x), Px(y), Px(w), Px(h), panelFill);
     DrawRectangleLinesEx(Rectangle{ x, y, w, h }, borderS, panelBorder);
 
-    Vector2 labelSz = MeasureTextEx(font, label, labelSizeS, spacingS);
+    Vector2 labelSz = MeasureTextEx(font, label.c_str(), labelSizeS, spacingS);
     float labelX = x + (w - labelSz.x) * 0.5f;
     float labelY = y + padS;
-    DrawTextEx(font, label, Vector2{ labelX, labelY }, labelSizeS, spacingS, RAYWHITE);
+    DrawTextEx(font, label.c_str(), Vector2{ labelX, labelY }, labelSizeS, spacingS, RAYWHITE);
 
     const char* vstr = TextFormat("%d", value);
     Vector2 valueSz = MeasureTextEx(font, vstr, valueSizeS, spacingS);
@@ -72,10 +72,10 @@ void IndicatorLight::Draw(const Font& font) const
     DrawRectangle(Px(x), Px(y), Px(w), Px(h), panelFill);
     DrawRectangleLinesEx(Rectangle{ x, y, w, h }, borderS, panelBorder);
 
-    Vector2 labelSz = MeasureTextEx(font, label, labelSizeS, spacingS);
+    Vector2 labelSz = MeasureTextEx(font, label.c_str(), labelSizeS, spacingS);
     float labelX = x + (w - labelSz.x) * 0.5f;
     float labelY = y + padS;
-    DrawTextEx(font, label, Vector2{ labelX, labelY }, labelSizeS, spacingS, RAYWHITE);
+    DrawTextEx(font, label.c_str(), Vector2{ labelX, labelY }, labelSizeS, spacingS, RAYWHITE);
 
     float contentTop = labelY + labelSz.y + gapS;
     float contentBottom = y + h - padS;
@@ -179,7 +179,7 @@ void GaugeWidget::Draw(const Font& font) const
 
     Vector2 vSz = MeasureTextEx(font, vstr, valueSizeS, spacingS);
 
-    bool hasUnits = (units && units[0] != '\0');
+    bool hasUnits = !units.empty();
     float yOffset = hasUnits ? (unitsSizeS * 0.5f) : 0.0f;
 
     Vector2 vPos = Vector2{ c.x - vSz.x * 0.5f, c.y - vSz.y * 0.5f - yOffset };
@@ -187,9 +187,9 @@ void GaugeWidget::Draw(const Font& font) const
 
     if (hasUnits)
     {
-        Vector2 uSz = MeasureTextEx(font, units, unitsSizeS, spacingS);
+        Vector2 uSz = MeasureTextEx(font, units.c_str(), unitsSizeS, spacingS);
         Vector2 uPos = Vector2{ c.x - uSz.x * 0.5f, vPos.y + vSz.y - (2.0f * scale) };
-        DrawTextEx(font, units, uPos, unitsSizeS, spacingS, Color{ textColor.r, textColor.g, textColor.b, 190 });
+        DrawTextEx(font, units.c_str(), uPos, unitsSizeS, spacingS, Color{ textColor.r, textColor.g, textColor.b, 190 });
     }
 }
 
@@ -223,7 +223,7 @@ void BarGraphWidget::Draw(const Font& font) const
     float unitsFs = unitsTextSize * scale;
     float spacingS = 1.0f * scale;
 
-    bool hasUnits = (units && units[0] != '\0');
+    bool hasUnits = !units.empty();
 
     float textBlockH = valueFs + (hasUnits ? unitsFs : 0.0f) + (10.0f * scale);
     float barTop = top;
@@ -291,9 +291,9 @@ void BarGraphWidget::Draw(const Font& font) const
 
     if (hasUnits)
     {
-        Vector2 uSz = MeasureTextEx(font, units, unitsFs, spacingS);
+        Vector2 uSz = MeasureTextEx(font, units.c_str(), unitsFs, spacingS);
         float uX = x + (w - uSz.x) * 0.5f;
         float uY = vY + vSz.y - (2.0f * scale);
-        DrawTextEx(font, units, Vector2{ uX, uY }, unitsFs, spacingS, Color{ textColor.r, textColor.g, textColor.b, 190 });
+        DrawTextEx(font, units.c_str(), Vector2{ uX, uY }, unitsFs, spacingS, Color{ textColor.r, textColor.g, textColor.b, 190 });
     }
 }

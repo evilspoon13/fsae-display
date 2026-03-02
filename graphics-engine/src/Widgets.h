@@ -1,5 +1,6 @@
 #pragma once
 #include "raylib.h"
+#include <string>
 
 // Base grid tile (your screen is divisible into these)
 static constexpr float BASE_TILE = 80.0f;
@@ -9,7 +10,7 @@ struct NumberWidget
     int gx = 0, gy = 0;
     int wTiles = 1, hTiles = 1;
 
-    const char* label = "VALUE";
+    std::string label = "VALUE";
     int value = 0;
     Color valueColor = GREEN;
 
@@ -32,7 +33,7 @@ struct IndicatorLight
     int gx = 0, gy = 0;
     int wTiles = 1, hTiles = 1;
 
-    const char* label = "WARN";
+    std::string label = "WARN";
     bool on = false;
 
     float scale = 1.0f;
@@ -65,7 +66,7 @@ struct GaugeWidget
     float value = 0.0f;
     float minValue = 0.0f;
     float maxValue = 100.0f;
-    const char* units = "";
+    std::string units;
     int decimals = 0;
 
     int tickCount = 6;
@@ -110,7 +111,7 @@ struct BarGraphWidget
     float value = 0.0f;
     float minValue = 0.0f;
     float maxValue = 100.0f;
-    const char* units = "";
+    std::string units;
     int decimals = 0;
 
     // Ticks
